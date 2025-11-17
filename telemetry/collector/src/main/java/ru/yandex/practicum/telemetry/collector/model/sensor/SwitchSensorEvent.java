@@ -1,0 +1,15 @@
+package ru.yandex.practicum.telemetry.collector.model.sensor;
+
+import lombok.Builder;
+import lombok.Data;
+
+@Data
+@Builder
+public class SwitchSensorEvent extends SensorEvent {
+    private boolean state;
+
+    @Override
+    public SensorEventType getType() {
+        return SensorEventType.SWITCH_SENSOR_EVENT;
+    }
+}
