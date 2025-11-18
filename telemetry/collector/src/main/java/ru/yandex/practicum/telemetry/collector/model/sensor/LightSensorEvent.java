@@ -1,12 +1,15 @@
 package ru.yandex.practicum.telemetry.collector.model.sensor;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
 
 @Data
 @Builder
-public class LightSensorEvent extends SensorEvent{
+public class LightSensorEvent extends SensorEvent {
+    @NotNull
     private Integer linkQuality;
+    @NotNull
     private Integer luminosity;
 
     @Override

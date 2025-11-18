@@ -16,7 +16,7 @@ public class HubEventService {
     @Value("${spring.kafka.topics.telemetry.hubs.v1}")
     private String hubEventTopic;
 
-    public HubEvent handleHubEvent(HubEvent hubEvent){
+    public HubEvent handleHubEvent(HubEvent hubEvent) {
         eventProducer.send(HubEventMapper.toAvro(hubEvent), hubEventTopic, hubEvent.getHubId());
         log.debug("сообщение{} успешно отправлено в топик{}", hubEvent, hubEventTopic);
         return hubEvent;

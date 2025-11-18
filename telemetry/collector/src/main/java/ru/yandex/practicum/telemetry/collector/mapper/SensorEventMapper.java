@@ -7,7 +7,7 @@ import java.time.ZoneOffset;
 
 public class SensorEventMapper {
 
-    public static SensorEventAvro toAvro(SensorEvent sensorEvent){
+    public static SensorEventAvro toAvro(SensorEvent sensorEvent) {
         Object payload = createPayload(sensorEvent);
 
         return SensorEventAvro.newBuilder()
@@ -18,7 +18,7 @@ public class SensorEventMapper {
                 .build();
     }
 
-    private static Object createPayload(SensorEvent sensorEvent){
+    private static Object createPayload(SensorEvent sensorEvent) {
         return switch (sensorEvent.getType()) {
             case CLIMATE_SENSOR_EVENT -> mapClimateSensor((ClimateSensorEvent) sensorEvent);
             case LIGHT_SENSOR_EVENT -> mapLightSensor((LightSensorEvent) sensorEvent);
@@ -28,7 +28,7 @@ public class SensorEventMapper {
         };
     }
 
-    private static ClimateSensorAvro mapClimateSensor(ClimateSensorEvent climateSensorEvent){
+    private static ClimateSensorAvro mapClimateSensor(ClimateSensorEvent climateSensorEvent) {
         return ClimateSensorAvro.newBuilder()
                 .setCo2Level(climateSensorEvent.getCo2Level())
                 .setHumidity(climateSensorEvent.getHumidity())
@@ -36,29 +36,29 @@ public class SensorEventMapper {
                 .build();
     }
 
-    private static LightSensorAvro mapLightSensor(LightSensorEvent lightSensorEvent){
+    private static LightSensorAvro mapLightSensor(LightSensorEvent lightSensorEvent) {
         return LightSensorAvro.newBuilder()
                 .setLinkQuality(lightSensorEvent.getLinkQuality())
                 .setLuminosity(lightSensorEvent.getLuminosity())
                 .build();
     }
 
-    private static MotionSensorAvro mapMotionSensor(MotionSensorEvent motionSensorEvent){
+    private static MotionSensorAvro mapMotionSensor(MotionSensorEvent motionSensorEvent) {
         return MotionSensorAvro.newBuilder()
-                .setLinkQuality(motionSensorEvent.getLingQuality())
+                .setLinkQuality(motionSensorEvent.getLinkQuality())
                 .setMotion(motionSensorEvent.isMotion())
                 .setVoltage(motionSensorEvent.getVoltage())
                 .build();
     }
 
-    private static SwitchSensorAvro mapSwitchSensor(SwitchSensorEvent switchSensorEvent){
+    private static SwitchSensorAvro mapSwitchSensor(SwitchSensorEvent switchSensorEvent) {
         return SwitchSensorAvro.newBuilder()
-                .setState(switchSensorEvent.isState())
+                .setState(switchSensorEvent.getState())
                 .build();
     }
 
-    private static TemperatureSensorAvro mapTemperatureSensor(TemperatureSensorEvent temperatureSensorEvent){
-       return TemperatureSensorAvro.newBuilder()
+    private static TemperatureSensorAvro mapTemperatureSensor(TemperatureSensorEvent temperatureSensorEvent) {
+        return TemperatureSensorAvro.newBuilder()
                 .setTemperatureC(temperatureSensorEvent.getTemperatureC())
                 .setTemperatureF(temperatureSensorEvent.getTemperatureF())
                 .build();

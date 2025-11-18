@@ -19,7 +19,7 @@ public class ScenarioAddedEvent extends HubEvent {
     private String name;
 
     @Override
-    protected HubEventType getType() {
+    public HubEventType getType() {
         return HubEventType.SCENARIO_ADDED;
     }
 }

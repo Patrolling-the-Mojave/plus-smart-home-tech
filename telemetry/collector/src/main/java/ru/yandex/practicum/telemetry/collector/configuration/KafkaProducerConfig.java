@@ -17,7 +17,7 @@ public class KafkaProducerConfig {
     private String bootstrapServer;
 
     @Bean
-    public KafkaProducer<String, SpecificRecordBase> kafkaProducer (){
+    public KafkaProducer<String, SpecificRecordBase> kafkaProducer() {
         Properties properties = new Properties();
         properties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServer);
         properties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());

@@ -7,7 +7,7 @@ import java.time.ZoneOffset;
 
 public class HubEventMapper {
 
-    public static HubEventAvro toAvro(HubEvent hubEvent){
+    public static HubEventAvro toAvro(HubEvent hubEvent) {
         Object payload = createPayload(hubEvent);
         return HubEventAvro.newBuilder()
                 .setHubId(hubEvent.getHubId())
@@ -28,7 +28,7 @@ public class HubEventMapper {
 
     private static ScenarioConditionAvro mapScenarioCondition(ScenarioCondition scenarioCondition) {
         return ScenarioConditionAvro.newBuilder()
-                .setSensorId(Integer.parseInt(scenarioCondition.getSensorId()))
+                .setSensorId(scenarioCondition.getSensorId())
                 .setOperation(ConditionOperationAvro.valueOf(scenarioCondition.getOperation().name()))
                 .setType(ConditionTypeAvro.valueOf(scenarioCondition.getType().name()))
                 .setValue(scenarioCondition.getValue())
@@ -37,7 +37,7 @@ public class HubEventMapper {
 
     private static DeviceActionAvro mapDeviceAction(DeviceAction deviceAction) {
         return DeviceActionAvro.newBuilder()
-                .setSensorId(Integer.parseInt(deviceAction.getSensorId()))
+                .setSensorId(deviceAction.getSensorId())
                 .setType(ActionTypeAvro.valueOf(deviceAction.getType().name()))
                 .setValue(deviceAction.getValue())
                 .build();
@@ -46,7 +46,7 @@ public class HubEventMapper {
     private static DeviceAddedEventAvro mapDeviceAdded(DeviceAddedEvent addedEvent) {
         return DeviceAddedEventAvro.newBuilder()
                 .setId(addedEvent.getId())
-                .setType(DeviceTypeAvro.valueOf(addedEvent.getType().name()))
+                .setType(DeviceTypeAvro.valueOf(addedEvent.getDeviceType().name()))
                 .build();
     }
 

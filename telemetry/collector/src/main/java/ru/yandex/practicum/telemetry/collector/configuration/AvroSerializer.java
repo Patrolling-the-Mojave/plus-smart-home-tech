@@ -10,10 +10,10 @@ import org.apache.kafka.common.serialization.Serializer;
 
 import java.io.ByteArrayOutputStream;
 
-public class AvroSerializer <T extends SpecificRecordBase> implements Serializer<T> {
+public class AvroSerializer<T extends SpecificRecordBase> implements Serializer<T> {
     @Override
     public byte[] serialize(String s, T data) {
-        if (data == null){
+        if (data == null) {
             return null;
         }
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
@@ -22,8 +22,8 @@ public class AvroSerializer <T extends SpecificRecordBase> implements Serializer
             writer.write(data, encoder);
             encoder.flush();
             return outputStream.toByteArray();
-        } catch (Exception e){
-            throw new SerializationException("не удалось сериализовать данные "+data.getSchema().getFullName());
+        } catch (Exception e) {
+            throw new SerializationException("не удалось сериализовать данные " + data.getSchema().getFullName());
         }
     }
 }

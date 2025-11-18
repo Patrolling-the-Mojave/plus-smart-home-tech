@@ -8,7 +8,7 @@ import lombok.Data;
 @Builder
 public class MotionSensorEvent extends SensorEvent {
     @NotNull
-    private Integer lingQuality;
+    private Integer linkQuality;
     @NotNull
     private boolean motion;
     @NotNull

@@ -1,7 +1,6 @@
 package ru.yandex.practicum.telemetry.collector.controller;
 
 import lombok.RequiredArgsConstructor;
-import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
@@ -21,13 +20,13 @@ public class EventController {
 
     @PostMapping("/hubs")
     @ResponseStatus(HttpStatus.OK)
-    public void handleHubEvent(@Validated @RequestBody HubEvent hubEvent){
+    public void handleHubEvent(@Validated @RequestBody HubEvent hubEvent) {
         hubEventService.handleHubEvent(hubEvent);
     }
 
     @PostMapping("/sensors")
     @ResponseStatus(HttpStatus.OK)
-    public void handleSensorEvent(@Validated @RequestBody SensorEvent sensorEvent){
+    public void handleSensorEvent(@Validated @RequestBody SensorEvent sensorEvent) {
         sensorEventService.handleSensorEvent(sensorEvent);
     }
 }

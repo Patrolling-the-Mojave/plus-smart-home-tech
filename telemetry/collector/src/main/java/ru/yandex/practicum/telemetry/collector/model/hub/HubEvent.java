@@ -6,7 +6,6 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
 import lombok.Data;
 
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME,
