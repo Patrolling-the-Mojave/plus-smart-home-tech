@@ -9,8 +9,5 @@ spring:
           v1: telemetry.sensors.v1
 
 server:
-  port: 8080
+  port: 59091
 
-grpc:
-  server:
-    port: 59091
