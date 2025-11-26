@@ -5,7 +5,7 @@ import ru.yandex.practicum.telemetry.collector.model.sensor.*;
 
 import java.time.ZoneOffset;
 
-public class SensorEventMapper {
+public class SensorEventAvroMapper {
 
     public static SensorEventAvro toAvro(SensorEvent sensorEvent) {
         Object payload = createPayload(sensorEvent);

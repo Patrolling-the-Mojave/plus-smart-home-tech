@@ -1,32 +1,69 @@
 package ru.yandex.practicum.telemetry.collector.controller;
 
-import lombok.RequiredArgsConstructor;
+import com.google.protobuf.Empty;
+import io.grpc.Status;
+import io.grpc.StatusRuntimeException;
+import io.grpc.stub.StreamObserver;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.telemetry.collector.model.hub.HubEvent;
-import ru.yandex.practicum.telemetry.collector.model.sensor.SensorEvent;
-import ru.yandex.practicum.telemetry.collector.service.HubEventService;
-import ru.yandex.practicum.telemetry.collector.service.SensorEventService;
+import net.devh.boot.grpc.server.service.GrpcService;
+import ru.yandex.practicum.grpc.telemetry.collector.CollectorControllerGrpc;
+import ru.yandex.practicum.grpc.telemetry.event.HubEventProto;
+import ru.yandex.practicum.grpc.telemetry.event.SensorEventProto;
+import ru.yandex.practicum.telemetry.collector.service.hub.HubEventHandler;
+import ru.yandex.practicum.telemetry.collector.service.sensor.SensorEventHandler;
 
-@RestController
-@RequiredArgsConstructor
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
 @Slf4j
-@RequestMapping("/events")
-public class EventController {
-    private final HubEventService hubEventService;
-    private final SensorEventService sensorEventService;
+@GrpcService
+public class EventController extends CollectorControllerGrpc.CollectorControllerImplBase {
+    private final Map<SensorEventProto.PayloadCase, SensorEventHandler> sensorEventHandlers;
+    private final Map<HubEventProto.PayloadCase, HubEventHandler> hubEventHandlers;
 
-    @PostMapping("/hubs")
-    @ResponseStatus(HttpStatus.OK)
-    public void handleHubEvent(@Validated @RequestBody HubEvent hubEvent) {
-        hubEventService.handleHubEvent(hubEvent);
+    public EventController(List<HubEventHandler> hubEventHandlers, List<SensorEventHandler> sensorEventHandlers) {
+        this.hubEventHandlers = hubEventHandlers.stream()
+                .collect(Collectors.toMap(HubEventHandler::getMessageType, Function.identity()));
+        this.sensorEventHandlers = sensorEventHandlers.stream()
+                .collect(Collectors.toMap(SensorEventHandler::getMessageType, Function.identity()));
+
     }
 
-    @PostMapping("/sensors")
-    @ResponseStatus(HttpStatus.OK)
-    public void handleSensorEvent(@Validated @RequestBody SensorEvent sensorEvent) {
-        sensorEventService.handleSensorEvent(sensorEvent);
+    @Override
+    public void collectSensorEvent(SensorEventProto request, StreamObserver<Empty> responseObserver) {
+        if (!sensorEventHandlers.containsKey(request.getPayloadCase())) {
+            throw new IllegalArgumentException("нет подходящего обработчика");
+        }
+        try {
+            sensorEventHandlers.get(request.getPayloadCase()).handle(request);
+            responseObserver.onNext(Empty.getDefaultInstance());
+            responseObserver.onCompleted();
+        } catch (Exception exception) {
+            responseObserver.onError(new StatusRuntimeException(
+                    Status.INTERNAL
+                            .withDescription("не удалось обработать ивент" + exception.getMessage())
+                            .withCause(exception)
+            ));
+        }
+    }
+
+    @Override
+    public void collectHubEvent(HubEventProto request, StreamObserver<Empty> responseObserver) {
+        if (!hubEventHandlers.containsKey(request.getPayloadCase())) {
+            throw new IllegalArgumentException("нет подходящего обработчика");
+        }
+        try {
+            hubEventHandlers.get(request.getPayloadCase()).handle(request);
+            responseObserver.onNext(Empty.getDefaultInstance());
+            responseObserver.onCompleted();
+        } catch (Exception exception) {
+            responseObserver.onError(new StatusRuntimeException(
+                    Status.INTERNAL
+                            .withDescription("не удалось обработать ивент" + exception.getMessage())
+                            .withCause(exception)
+            ));
+        }
     }
 }

@@ -5,7 +5,7 @@ import ru.yandex.practicum.telemetry.collector.model.hub.*;
 
 import java.time.ZoneOffset;
 
-public class HubEventMapper {
+public class HubEventAvroMapper {
 
     public static HubEventAvro toAvro(HubEvent hubEvent) {
         Object payload = createPayload(hubEvent);
@@ -58,8 +58,8 @@ public class HubEventMapper {
 
     private static ScenarioAddedEventAvro mapScenarioAdded(ScenarioAddedEvent scenarioAddedEvent) {
         return ScenarioAddedEventAvro.newBuilder()
-                .setActions(scenarioAddedEvent.getActions().stream().map(HubEventMapper::mapDeviceAction).toList())
-                .setConditions(scenarioAddedEvent.getConditions().stream().map(HubEventMapper::mapScenarioCondition).toList())
+                .setActions(scenarioAddedEvent.getActions().stream().map(HubEventAvroMapper::mapDeviceAction).toList())
+                .setConditions(scenarioAddedEvent.getConditions().stream().map(HubEventAvroMapper::mapScenarioCondition).toList())
                 .setName(scenarioAddedEvent.getName())
                 .build();
     }

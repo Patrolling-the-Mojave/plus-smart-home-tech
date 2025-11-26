@@ -1,11 +1,12 @@
-package ru.yandex.practicum.telemetry.collector.service;
+package ru.yandex.practicum.telemetry.collector.service.hub;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.telemetry.collector.mapper.HubEventMapper;
+import ru.yandex.practicum.telemetry.collector.mapper.HubEventAvroMapper;
 import ru.yandex.practicum.telemetry.collector.model.hub.HubEvent;
+import ru.yandex.practicum.telemetry.collector.service.EventProducer;
 
 @Service
 @RequiredArgsConstructor
@@ -17,7 +18,7 @@ public class HubEventService {
     private String hubEventTopic;
 
     public HubEvent handleHubEvent(HubEvent hubEvent) {
-        eventProducer.send(HubEventMapper.toAvro(hubEvent), hubEventTopic, hubEvent.getHubId());
+        eventProducer.send(HubEventAvroMapper.toAvro(hubEvent), hubEventTopic, hubEvent.getHubId());
         log.debug("сообщение{} успешно отправлено в топик{}", hubEvent, hubEventTopic);
         return hubEvent;
     }
