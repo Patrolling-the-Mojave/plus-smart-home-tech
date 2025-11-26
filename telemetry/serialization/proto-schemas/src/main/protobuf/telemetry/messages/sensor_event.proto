@@ -10,7 +10,7 @@ import "google/protobuf/timestamp.proto";
 message SensorEventProto {
   string id = 1;
   google.protobuf.Timestamp timestamp = 2;
-  string hub_id = 3;
+  string hubId = 3;
   oneof payload {
     MotionSensorProto motion_sensor = 4;
     TemperatureSensorProto temperature_sensor = 5;
