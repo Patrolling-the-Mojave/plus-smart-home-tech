@@ -38,10 +38,10 @@ public class HubEventProtoMapper {
     private static ScenarioAddedEvent toScenarioAddedEvent(ScenarioAddedEventProto scenarioProto) {
         return ScenarioAddedEvent.builder()
                 .name(scenarioProto.getName())
-                .conditions(scenarioProto.getConditionsList().stream()
+                .conditions(scenarioProto.getConditionList().stream()
                         .map(HubEventProtoMapper::toScenarioCondition)
                         .toList())
-                .actions(scenarioProto.getActionsList().stream()
+                .actions(scenarioProto.getActionList().stream()
                         .map(HubEventProtoMapper::toDeviceAction)
                         .toList())
                 .build();
