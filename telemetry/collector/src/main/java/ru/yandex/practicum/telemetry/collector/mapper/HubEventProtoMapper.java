@@ -18,7 +18,9 @@ public class HubEventProtoMapper {
             case PAYLOAD_NOT_SET -> throw new IllegalArgumentException("Hub event type not set");
         };
         hubEvent.setHubId(proto.getHubId());
-        hubEvent.setTimestamp(Instant.ofEpochMilli(proto.getTimestamp().getSeconds()).atZone(ZoneOffset.UTC).toLocalDateTime());
+        hubEvent.setTimestamp(Instant.ofEpochSecond(proto.getTimestamp().getSeconds(),
+                        proto.getTimestamp().getNanos())
+                .atZone(ZoneOffset.UTC).toLocalDateTime());
         return hubEvent;
     }
 
