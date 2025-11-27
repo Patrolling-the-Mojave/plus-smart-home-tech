@@ -56,19 +56,27 @@ public class HubEventProtoMapper {
     }
 
     private static ScenarioCondition toScenarioCondition(ScenarioConditionProto proto) {
+        Object value = switch (proto.getValueCase()){
+            case BOOL_VALUE -> proto.getBoolValue();
+            case INT_VALUE -> proto.getIntValue();
+            case VALUE_NOT_SET -> null;
+        };
+
         return ScenarioCondition.builder()
                 .sensorId(proto.getSensorId())
                 .type(ConditionType.valueOf(proto.getType().name()))
                 .operation(ConditionOperation.valueOf(proto.getOperation().name()))
-                .value(proto.getIntValue())
+                .value(value)
                 .build();
     }
 
     private static DeviceAction toDeviceAction(DeviceActionProto proto) {
+        Integer value = proto.hasValue() ? proto.getValue() : null;
+
         return DeviceAction.builder()
                 .sensorId(proto.getSensorId())
                 .type(ActionType.valueOf(proto.getType().name()))
-                .value(proto.getValue())
+                .value(value)
                 .build();
     }
 }

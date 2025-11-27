@@ -36,7 +36,6 @@ message DeviceRemovedEventProto {
   string id = 1;        // идентификатор устройства
 }
 
-// события создания/удаления сценариев
 enum ConditionTypeProto {
   MOTION = 0;
   LUMINOSITY = 1;
@@ -76,9 +75,9 @@ message DeviceActionProto {
 }
 
 message ScenarioAddedEventProto {
-  string name = 1; // название сценария уникальное в рамках хаба
-  repeated ScenarioConditionProto condition = 2; // набор условий активации сценария
-  repeated DeviceActionProto action = 3; // набор действий при активации сценария
+  string name = 1;
+  repeated ScenarioConditionProto condition = 2;
+  repeated DeviceActionProto action = 3;
 }
 
 message ScenarioRemovedEventProto {
