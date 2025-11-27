@@ -18,6 +18,7 @@ public class ScenarioAddedEvent extends HubEvent {
     @Size(min = 3)
     private String name;
 
+
     @Override
     public HubEventType getType() {
         return HubEventType.SCENARIO_ADDED;
