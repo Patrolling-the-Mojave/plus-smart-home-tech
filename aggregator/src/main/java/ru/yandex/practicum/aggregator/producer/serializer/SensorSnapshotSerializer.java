@@ -12,19 +12,20 @@ import java.io.ByteArrayOutputStream;
 
 public class SensorSnapshotSerializer implements Serializer<SensorsSnapshotAvro> {
 
+    private final DatumWriter<SensorsSnapshotAvro> writer = new SpecificDatumWriter<>(SensorsSnapshotAvro.class);
+
     @Override
-    public byte[] serialize(String s, SensorsSnapshotAvro sensorsSnapshotAvro) {
-        if (sensorsSnapshotAvro == null) {
+    public byte[] serialize(String topic, SensorsSnapshotAvro data) {
+        if (data == null) {
             return null;
         }
-        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-            BinaryEncoder encoder = EncoderFactory.get().binaryEncoder(outputStream, null);
-            DatumWriter<SensorsSnapshotAvro> writer = new SpecificDatumWriter<>(sensorsSnapshotAvro.getSchema());
-            writer.write(sensorsSnapshotAvro, encoder);
+        try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+            BinaryEncoder encoder = EncoderFactory.get().binaryEncoder(out, null);
+            writer.write(data, encoder);
             encoder.flush();
-            return outputStream.toByteArray();
+            return out.toByteArray();
         } catch (Exception e) {
-            throw new SerializationException("не удалось сериализовать данные " + sensorsSnapshotAvro.getSchema().getFullName());
+            throw new SerializationException("Не удалось сериализовать снапшот: " + e.getMessage(), e);
         }
     }
 }
