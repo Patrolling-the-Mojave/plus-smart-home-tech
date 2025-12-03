@@ -81,7 +81,7 @@ public class AggregationStarter {
                     .build();
         }
         snapshotAvro.getSensorsState().put(sensorEventAvro.getId(), newState);
-        snapshots.put(sensorEventAvro.getId(), snapshotAvro);
+        snapshots.put(hubId, snapshotAvro);
 
         return Optional.of(snapshotAvro);
     }
