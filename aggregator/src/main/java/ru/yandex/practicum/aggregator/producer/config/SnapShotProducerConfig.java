@@ -13,7 +13,7 @@ import java.util.Properties;
 
 @Configuration
 public class SnapShotProducerConfig {
-    @Value("${spring.kafka.bootstrap-servers:localhost:9091}")
+    @Value("${spring.kafka.bootstrap-servers}")
     private String bootstrapServer;
 
     @Bean
