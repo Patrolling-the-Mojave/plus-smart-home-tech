@@ -1,6 +1,6 @@
 spring:
   kafka:
-    bootstrap-servers: localhost:9091
+    bootstrap-servers: localhost:9092
     topics:
       telemetry:
         sensors:

@@ -24,7 +24,6 @@ public class KafkaConsumerConfig {
         properties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServer);
         properties.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
         properties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, SensorEventDeserializer.class.getName());
-        properties.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, 10);
         return new KafkaConsumer<>(properties);
     }
 
