@@ -1,0 +1,14 @@
+spring:
+  kafka:
+    consumer:
+      group-id: aggregator-group
+      enable-auto-commit: false
+    bootstrap-servers: localhost:9092
+    topics:
+      telemetry:
+        sensors:
+          v1: telemetry.sensors.v1
+        snapshots:
+          v1: telemetry.snapshots.v1
+server:
+  port: 8081

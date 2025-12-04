@@ -30,7 +30,8 @@ protocol SensorEventProtocol {
         string id;
         string hubId;
         timestamp_ms timestamp;
-        union {ClimateSensorAvro,
+        union {
+        ClimateSensorAvro,
         LightSensorAvro,
         MotionSensorAvro,
         SwitchSensorAvro,
