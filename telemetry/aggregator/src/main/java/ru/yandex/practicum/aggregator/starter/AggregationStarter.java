@@ -50,10 +50,13 @@ public class AggregationStarter {
         } catch (Exception exception) {
             log.error("произошла ошибка при обработке записей", exception);
         } finally {
-            sensorsSnapshotProducer.flush();
-            sensorEventConsumer.commitSync();
-            sensorEventConsumer.close();
-            sensorsSnapshotProducer.close();
+            try{
+                sensorsSnapshotProducer.flush();
+                sensorEventConsumer.commitSync();
+            } finally {
+                sensorEventConsumer.close();
+                sensorsSnapshotProducer.close();
+            }
         }
     }
 
