@@ -108,6 +108,7 @@ public class AggregationStarter {
         String key = snapshotAvro.getHubId();
         ProducerRecord<String, SensorsSnapshotAvro> producerRecord = new ProducerRecord<>(snapshotTopic, key, snapshotAvro);
         sensorsSnapshotProducer.send(producerRecord);
+        sensorsSnapshotProducer.flush();
 
     }
 }

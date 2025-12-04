@@ -12,7 +12,7 @@ import java.io.ByteArrayOutputStream;
 
 public class SensorSnapshotSerializer implements Serializer<SensorsSnapshotAvro> {
 
-    private final DatumWriter<SensorsSnapshotAvro> writer = new SpecificDatumWriter<>(SensorsSnapshotAvro.class);
+    private final DatumWriter<SensorsSnapshotAvro> writer = new SpecificDatumWriter<>(SensorsSnapshotAvro.getClassSchema());
 
     @Override
     public byte[] serialize(String topic, SensorsSnapshotAvro data) {
