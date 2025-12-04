@@ -1,5 +1,6 @@
 package ru.yandex.practicum.aggregator.producer.config;
 
+import org.apache.avro.specific.SpecificRecordBase;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
@@ -17,7 +18,7 @@ public class SnapShotProducerConfig {
     private String bootstrapServer;
 
     @Bean
-    public KafkaProducer<String, SensorsSnapshotAvro> sensorsSnapshotProducer(){
+    public KafkaProducer<String, SpecificRecordBase> sensorsSnapshotProducer(){
         Properties properties = new Properties();
         properties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServer);
         properties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());

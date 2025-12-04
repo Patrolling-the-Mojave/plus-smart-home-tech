@@ -2,6 +2,7 @@ package ru.yandex.practicum.aggregator.starter;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.avro.specific.SpecificRecordBase;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
@@ -23,7 +24,7 @@ import java.util.*;
 @RequiredArgsConstructor
 public class AggregationStarter {
     private final KafkaConsumer<String, SensorEventAvro> sensorEventConsumer;
-    private final KafkaProducer<String, SensorsSnapshotAvro> sensorsSnapshotProducer;
+    private final KafkaProducer<String,SpecificRecordBase> sensorsSnapshotProducer;
     private final Map<String, SensorsSnapshotAvro> snapshots = new HashMap<>();
     private static final Duration POLL_DURATION = Duration.ofMillis(1000);
 
@@ -76,6 +77,7 @@ public class AggregationStarter {
             snapshots.put(hubId, snapshot);
         }
         SensorStateAvro oldState = snapshot.getSensorsState().get(sensorId);
+
         if (oldState != null) {
             if (oldState.getTimestamp().isAfter(eventTimestamp)) {
                 return Optional.empty();
@@ -98,9 +100,7 @@ public class AggregationStarter {
 
     private void sendSnapshot(SensorsSnapshotAvro snapshotAvro) {
         String key = snapshotAvro.getHubId();
-        ProducerRecord<String, SensorsSnapshotAvro> producerRecord = new ProducerRecord<>(snapshotTopic, key, snapshotAvro);
+        ProducerRecord<String, SpecificRecordBase> producerRecord = new ProducerRecord<>(snapshotTopic, key, snapshotAvro);
         sensorsSnapshotProducer.send(producerRecord);
-        sensorsSnapshotProducer.flush();
-
     }
 }

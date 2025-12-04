@@ -4,28 +4,32 @@ import org.apache.avro.io.BinaryEncoder;
 import org.apache.avro.io.DatumWriter;
 import org.apache.avro.io.EncoderFactory;
 import org.apache.avro.specific.SpecificDatumWriter;
+import org.apache.avro.specific.SpecificRecordBase;
 import org.apache.kafka.common.errors.SerializationException;
 import org.apache.kafka.common.serialization.Serializer;
 import ru.yandex.practicum.kafka.telemetry.event.SensorsSnapshotAvro;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
-public class SensorSnapshotSerializer implements Serializer<SensorsSnapshotAvro> {
+public class SensorSnapshotSerializer implements Serializer<SpecificRecordBase> {
 
-    private final DatumWriter<SensorsSnapshotAvro> writer = new SpecificDatumWriter<>(SensorsSnapshotAvro.getClassSchema());
+    private final EncoderFactory encoderFactory = EncoderFactory.get();
 
     @Override
-    public byte[] serialize(String topic, SensorsSnapshotAvro data) {
-        if (data == null) {
-            return null;
-        }
-        try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
-            BinaryEncoder encoder = EncoderFactory.get().binaryEncoder(out, null);
-            writer.write(data, encoder);
-            encoder.flush();
-            return out.toByteArray();
-        } catch (Exception e) {
-            throw new SerializationException("Не удалось сериализовать снапшот: " + e.getMessage(), e);
+    public byte[] serialize(String topic, SpecificRecordBase data) {
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+            byte[] result = null;
+            BinaryEncoder encoder = encoderFactory.binaryEncoder(outputStream, null);
+            if (data != null) {
+                DatumWriter<SpecificRecordBase> datumWriter = new SpecificDatumWriter<>(data.getSchema());
+                datumWriter.write(data, encoder);
+                encoder.flush();
+                result = outputStream.toByteArray();
+            }
+            return result;
+        } catch (IOException e) {
+            throw new SerializationException("Ошибка сериализации данных для топика [" + topic + "]", e);
         }
     }
 }

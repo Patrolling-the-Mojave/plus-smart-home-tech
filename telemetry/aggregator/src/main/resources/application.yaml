@@ -11,5 +11,3 @@ spring:
           v1: telemetry.sensors.v1
         snapshots:
           v1: telemetry.snapshots.v1
-server:
-  port: 8081
