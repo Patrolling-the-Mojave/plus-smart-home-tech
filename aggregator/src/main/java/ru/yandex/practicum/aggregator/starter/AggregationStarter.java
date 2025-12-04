@@ -16,10 +16,7 @@ import ru.yandex.practicum.kafka.telemetry.event.SensorsSnapshotAvro;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @Slf4j
@@ -60,49 +57,41 @@ public class AggregationStarter {
         }
     }
 
-    private Optional<SensorsSnapshotAvro> updateState(SensorEventAvro sensorEventAvro) {
-        String hubId = sensorEventAvro.getHubId();
-        SensorsSnapshotAvro snapshotAvro = snapshots.get(hubId);
-        if (snapshotAvro != null) {
-            SensorStateAvro oldState = snapshotAvro.getSensorsState().get(sensorEventAvro.getId());
-            if (shouldSkipUpdate(oldState, sensorEventAvro.getTimestamp(), sensorEventAvro.getPayload())) {
+    private Optional<SensorsSnapshotAvro> updateState(SensorEventAvro event) {
+        String hubId = event.getHubId();
+        String sensorId = event.getId();
+        Instant eventTimestamp = event.getTimestamp();
+        Object eventPayload = event.getPayload();
+
+        SensorsSnapshotAvro snapshot = snapshots.get(hubId);
+        if (snapshot == null) {
+            snapshot = SensorsSnapshotAvro.newBuilder()
+                    .setHubId(hubId)
+                    .setSensorsState(new HashMap<>())
+                    .setTimestamp(eventTimestamp)
+                    .build();
+            snapshots.put(hubId, snapshot);
+        }
+        SensorStateAvro oldState = snapshot.getSensorsState().get(sensorId);
+        if (oldState != null) {
+            if (oldState.getTimestamp().isAfter(eventTimestamp)) {
+                return Optional.empty();
+            }
+            if (Objects.equals(oldState.getData(), eventPayload)) {
                 return Optional.empty();
             }
         }
+
         SensorStateAvro newState = SensorStateAvro.newBuilder()
-                .setData(sensorEventAvro.getPayload())
-                .setTimestamp(sensorEventAvro.getTimestamp())
+                .setData(eventPayload)
+                .setTimestamp(eventTimestamp)
                 .build();
-        if (snapshotAvro == null) {
-            snapshotAvro = SensorsSnapshotAvro.newBuilder()
-                    .setHubId(hubId)
-                    .setSensorsState(new HashMap<>())
-                    .setTimestamp(sensorEventAvro.getTimestamp())
-                    .build();
-        }
-        snapshotAvro.getSensorsState().put(sensorEventAvro.getId(), newState);
-        snapshots.put(hubId, snapshotAvro);
 
-        return Optional.of(snapshotAvro);
+        snapshot.getSensorsState().put(sensorId, newState);
+        snapshot.setTimestamp(eventTimestamp);
+
+        return Optional.of(snapshot);
     }
-
-    private boolean shouldSkipUpdate(SensorStateAvro oldState, Instant newTimestamp, Object newPayload) {
-        if (oldState == null) {
-            return false;
-        }
-        if (oldState.getTimestamp().isAfter(newTimestamp)) {
-            return true;
-        }
-        Object oldPayload = oldState.getData();
-        if (oldPayload == null && newPayload == null) {
-            return true;
-        }
-        if (oldPayload == null || newPayload == null) {
-            return false;
-        }
-        return oldPayload.equals(newPayload);
-    }
-
 
     private void sendSnapshot(SensorsSnapshotAvro snapshotAvro) {
         String key = snapshotAvro.getHubId();
