@@ -36,8 +36,8 @@ public abstract class BaseAvroDeserializer<T extends SpecificRecordBase> impleme
             return null;
         } catch (Exception e) {
             throw new SerializationException(
-                    String.format("Failed to deserialize Avro data for topic %s. " +
-                                    "Schema: %s, Error: %s",
+                    String.format("произошла ошибка при десериализации данных avro для топика %s. " +
+                                    "схема: %s, ошибка: %s",
                             s, schema.getFullName(), e.getMessage()),
                     e);
         }
