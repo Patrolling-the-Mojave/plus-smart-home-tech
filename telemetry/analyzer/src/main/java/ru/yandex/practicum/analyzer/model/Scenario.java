@@ -30,4 +30,12 @@ public class Scenario {
 
     @OneToMany(mappedBy = "scenario", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<ScenarioAction> scenarioActions = new ArrayList<>();
+
+    public void addCondition(ScenarioCondition scenarioCondition) {
+        this.scenarioConditions.add(scenarioCondition);
+    }
+
+    public void addAction(ScenarioAction action) {
+        this.scenarioActions.add(action);
+    }
 }

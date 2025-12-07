@@ -7,6 +7,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.errors.WakeupException;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.analyzer.exception.AnalyzerException;
 import ru.yandex.practicum.analyzer.grpcservice.HubRouterService;
@@ -16,6 +17,7 @@ import ru.yandex.practicum.analyzer.model.ConditionType;
 import ru.yandex.practicum.analyzer.model.Scenario;
 import ru.yandex.practicum.analyzer.repository.ConditionRepository;
 import ru.yandex.practicum.analyzer.repository.ScenarioRepository;
+import ru.yandex.practicum.analyzer.repository.SensorRepository;
 import ru.yandex.practicum.kafka.telemetry.event.*;
 
 import java.time.Duration;
@@ -29,6 +31,7 @@ public class SnapshotProcessor implements Runnable {
     private final KafkaConsumer<String, SensorsSnapshotAvro> snapshotKafkaConsumer;
     private final ScenarioRepository scenarioRepository;
     private final HubRouterService hubRouterService;
+    private final SensorRepository sensorRepository;
     private final ConditionRepository conditionRepository;
     private static final Duration POLL_DURATION = Duration.ofMillis(1000);
 
@@ -68,6 +71,8 @@ public class SnapshotProcessor implements Runnable {
     private boolean isScenarioTriggered(Scenario scenario, Map<String, SensorStateAvro> states) {
         return scenario.getScenarioConditions().stream().allMatch(scenarioCondition -> {
             String sensorId = scenarioCondition.getSensor().getId();
+            sensorRepository.findByIdAndHubId(sensorId, scenario.getHubId()).orElseThrow(() ->
+                    new AnalyzerException("устройство с id "+sensorId+" не найдена"));
             SensorStateAvro state = states.get(sensorId);
             if (state == null) {
                 return false;
