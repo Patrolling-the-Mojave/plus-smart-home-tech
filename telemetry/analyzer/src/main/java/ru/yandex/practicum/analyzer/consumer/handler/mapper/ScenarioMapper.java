@@ -9,6 +9,7 @@ import ru.yandex.practicum.kafka.telemetry.event.ScenarioAddedEventAvro;
 import ru.yandex.practicum.kafka.telemetry.event.ScenarioConditionAvro;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Component
@@ -22,13 +23,13 @@ public class ScenarioMapper {
                 .name(event.getName())
                 .build();
 
-        List<ScenarioCondition> scenarioConditions = event.getConditions().stream()
+        Set<ScenarioCondition> scenarioConditions = event.getConditions().stream()
                 .map(conditionAvro -> toScenarioCondition(conditionAvro, scenario))
-                .collect(Collectors.toList());
+                .collect(Collectors.toSet());
 
-        List<ScenarioAction> scenarioActions = event.getActions().stream()
+        Set<ScenarioAction> scenarioActions = event.getActions().stream()
                 .map(actionAvro -> toScenarioAction(actionAvro, scenario))
-                .collect(Collectors.toList());
+                .collect(Collectors.toSet());
 
         scenario.setScenarioConditions(scenarioConditions);
         scenario.setScenarioActions(scenarioActions);

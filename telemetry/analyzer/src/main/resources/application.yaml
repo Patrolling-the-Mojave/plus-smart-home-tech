@@ -26,6 +26,7 @@ spring:
     level:
       root: DEBUG
 
+
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:

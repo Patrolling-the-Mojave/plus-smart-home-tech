@@ -1,19 +1,17 @@
 package ru.yandex.practicum.analyzer.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
-@Data
 @Table(name = "scenarios", uniqueConstraints = {
         @UniqueConstraint(columnNames = {"hub_id", "name"})
 })
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -26,10 +24,10 @@ public class Scenario {
     private String name;
 
     @OneToMany(mappedBy = "scenario", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<ScenarioCondition> scenarioConditions = new ArrayList<>();
+    private Set<ScenarioCondition> scenarioConditions = new HashSet<>();
 
     @OneToMany(mappedBy = "scenario", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<ScenarioAction> scenarioActions = new ArrayList<>();
+    private Set<ScenarioAction> scenarioActions = new HashSet<>();
 
     public void addCondition(ScenarioCondition scenarioCondition) {
         this.scenarioConditions.add(scenarioCondition);

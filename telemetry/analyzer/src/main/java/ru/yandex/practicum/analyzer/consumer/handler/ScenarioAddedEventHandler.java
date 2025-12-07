@@ -40,16 +40,20 @@ public class ScenarioAddedEventHandler implements HubEventHandler {
             String hubId = hubEventAvro.getHubId();
             String scenarioName = event.getName();
 
-            // Удаляем существующий сценарий с таким именем в этом хабе
             scenarioRepository.findByHubIdAndName(hubId, scenarioName)
-                    .ifPresent(scenarioRepository::delete);
+                    .ifPresent(existingScenario -> {
+                        existingScenario.getScenarioConditions().clear();
+                        existingScenario.getScenarioActions().clear();
+                        scenarioRepository.saveAndFlush(existingScenario);
+                        scenarioRepository.delete(existingScenario);
+                        scenarioRepository.flush();
+                        log.info("Удален существующий сценарий '{}' для хаба {}", scenarioName, hubId);
+                    });
 
-            // Сохраняем новый сценарий
             Scenario scenario = new Scenario();
             scenario.setHubId(hubId);
             scenario.setName(scenarioName);
 
-            // Обработка условий
             for (ScenarioConditionAvro condAvro : event.getConditions()) {
                 Sensor sensor = getAndValidateSensor(condAvro.getSensorId(), hubId);
 
@@ -66,7 +70,6 @@ public class ScenarioAddedEventHandler implements HubEventHandler {
                 scenario.addCondition(sc);
             }
 
-            // Обработка действий
             for (DeviceActionAvro actAvro : event.getActions()) {
                 Sensor sensor = getAndValidateSensor(actAvro.getSensorId(), hubId);
 

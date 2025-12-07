@@ -15,11 +15,7 @@ public interface SensorRepository extends JpaRepository<Sensor, String> {
     @Query("""
         SELECT s FROM Sensor s
         LEFT JOIN FETCH s.scenarioConditions sc
-        LEFT JOIN FETCH sc.condition
-        LEFT JOIN FETCH sc.scenario
         LEFT JOIN FETCH s.scenarioActions sa
-        LEFT JOIN FETCH sa.action
-        LEFT JOIN FETCH sa.scenario
         WHERE s.id = :id AND s.hubId = :hubId
         """)
     Optional<Sensor> findByIdAndHubId(@Param("id") String id, @Param("hubId") String hubId);

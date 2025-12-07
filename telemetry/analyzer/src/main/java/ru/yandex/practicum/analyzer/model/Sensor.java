@@ -6,8 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "sensors")
@@ -21,8 +21,8 @@ public class Sensor {
     @Column(name = "hub_id", nullable = false)
     private String hubId;
     @OneToMany(mappedBy = "sensor", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<ScenarioCondition> scenarioConditions = new ArrayList<>();
+    private Set<ScenarioCondition> scenarioConditions = new HashSet<>();
 
     @OneToMany(mappedBy = "sensor", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<ScenarioAction> scenarioActions = new ArrayList<>();
+    private Set<ScenarioAction> scenarioActions = new HashSet<>();
 }
