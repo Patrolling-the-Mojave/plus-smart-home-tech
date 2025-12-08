@@ -24,7 +24,7 @@ spring:
 
   logging:
     level:
-      root: INFO  # Можно оставить INFO или WARN
+      root: DEBUG  # Можно оставить INFO или WARN
       org.hibernate: WARN  # Уровень для Hibernate
       org.hibernate.SQL: WARN  # SQL запросы
       org.hibernate.type.descriptor.sql: WARN  # Параметры SQL
