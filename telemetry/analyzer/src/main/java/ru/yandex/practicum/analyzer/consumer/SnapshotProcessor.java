@@ -5,19 +5,20 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.clients.consumer.OffsetAndMetadata;
+import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.errors.WakeupException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.analyzer.exception.AnalyzerException;
 import ru.yandex.practicum.analyzer.grpcservice.HubRouterService;
 import ru.yandex.practicum.analyzer.model.*;
-import ru.yandex.practicum.analyzer.repository.ConditionRepository;
 import ru.yandex.practicum.analyzer.repository.ScenarioRepository;
 import ru.yandex.practicum.analyzer.repository.SensorRepository;
 import ru.yandex.practicum.kafka.telemetry.event.*;
 
 import java.time.Duration;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -29,6 +30,7 @@ public class SnapshotProcessor implements Runnable {
     private final ScenarioRepository scenarioRepository;
     private final HubRouterService hubRouterService;
     private final SensorRepository sensorRepository;
+    private final Integer BATCH_SIZE = 10;
     private static final Duration POLL_DURATION = Duration.ofMillis(5000);
 
     @Value("${spring.kafka.topics.telemetry.snapshots.v1}")
@@ -38,23 +40,48 @@ public class SnapshotProcessor implements Runnable {
     public void run() {
         snapshotKafkaConsumer.subscribe(List.of(snapshotTopic));
         Runtime.getRuntime().addShutdownHook(new Thread(snapshotKafkaConsumer::wakeup));
+        Map<TopicPartition, OffsetAndMetadata> offsets = new HashMap<>();
+        int count = 0;
         try {
             while (true) {
                 ConsumerRecords<String, SensorsSnapshotAvro> records = snapshotKafkaConsumer.poll(POLL_DURATION);
                 for (ConsumerRecord<String, SensorsSnapshotAvro> record : records) {
                     processSnapshot(record.value());
+                    offsets.put(new TopicPartition(record.topic(), record.partition()),
+                            new OffsetAndMetadata(record.offset() + 1));
+                    count++;
+                    if (count >= BATCH_SIZE) {
+                        commitOffsets(offsets);
+                        offsets.clear();
+                        count = 0;
+                    }
                 }
                 snapshotKafkaConsumer.commitSync();
             }
         } catch (WakeupException exception) {
-
+            if (!offsets.isEmpty()){
+                snapshotKafkaConsumer.commitSync(offsets);
+            }
         } catch (Exception exception) {
-            log.error("произошла ошибка при обработке записей", exception);
-            throw new AnalyzerException("произошла ошибка при обработке записей", exception);
+            log.error("Произошла ошибка при обработке записей", exception);
+            throw new AnalyzerException("Произошла ошибка при обработке записей", exception);
+        } finally {
+            try {
+                snapshotKafkaConsumer.commitSync(offsets);
+            } finally {
+                snapshotKafkaConsumer.close();
+            }
         }
     }
 
-    @Transactional
+    private void commitOffsets(Map<TopicPartition, OffsetAndMetadata> offsetsToCommit) {
+        try {
+            snapshotKafkaConsumer.commitSync(offsetsToCommit);
+        } catch (Exception e) {
+            log.error("Неожиданная ошибка при коммите оффсетов", e);
+        }
+    }
+
     private void processSnapshot(SensorsSnapshotAvro snapshot) {
         String hubId = snapshot.getHubId();
         log.info("Получен снапшот для хаба: {}", hubId);
@@ -62,7 +89,7 @@ public class SnapshotProcessor implements Runnable {
         log.info("Найдено сценариев для хаба {}: {}", hubId, scenarios.size());
         for (Scenario scenario : scenarios) {
             if (isScenarioTriggered(scenario, snapshot.getSensorsState())) {
-                log.info("Сценарий '{}' активирован Отправляем команду в Hub Router", scenario.getName());
+                log.info("Сценарий {} активирован", scenario.getName());
                 hubRouterService.sendDeviceActionRequest(scenario);
             }
         }
@@ -76,7 +103,7 @@ public class SnapshotProcessor implements Runnable {
                 return false;
             }
             if (!scenario.getHubId().equals(sensor.getHubId())) {
-                log.warn("Датчик {} принадлежит другому хабу ({} != {})",
+                log.warn("датчик {} принадлежит другому хабу ({} != {})",
                         sensor.getId(), sensor.getHubId(), scenario.getHubId());
                 return false;
             }

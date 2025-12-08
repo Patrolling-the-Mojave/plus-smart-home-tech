@@ -48,8 +48,14 @@ public class HubEventProcessor implements Runnable {
         } catch (WakeupException exception) {
 
         } catch (Exception exception) {
-            log.warn("произошла ошибка при обработке данных из топика{}", hubEventsTopic);
+            log.warn("Произошла ошибка при обработке данных из топика{}", hubEventsTopic);
             throw new AnalyzerException(exception.getMessage(), exception);
+        } finally {
+            try {
+                hubEventKafkaConsumer.commitSync();
+            } finally {
+                hubEventKafkaConsumer.close();
+            }
         }
     }
 
