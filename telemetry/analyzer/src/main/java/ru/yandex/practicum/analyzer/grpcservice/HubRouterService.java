@@ -51,11 +51,15 @@ public class HubRouterService {
     }
 
     private DeviceActionProto toDeviceAction(Action action, String sensorId) {
-        return DeviceActionProto.newBuilder()
+         DeviceActionProto.Builder builder =
+                DeviceActionProto.newBuilder()
                 .setType(ActionTypeProto.valueOf(action.getType().toString()))
-                .setValue(action.getValue())
-                .setSensorId(sensorId)
-                .build();
+                .setSensorId(sensorId);
+        if (action.getValue() != null) {
+            builder.setValue(action.getValue());
+        }
+         return builder.build();
     }
+
 
 }

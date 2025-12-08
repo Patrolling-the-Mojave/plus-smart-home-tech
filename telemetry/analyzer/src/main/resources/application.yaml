@@ -24,7 +24,15 @@ spring:
 
   logging:
     level:
-      root: DEBUG
+      root: INFO  # Можно оставить INFO или WARN
+      org.hibernate: WARN  # Уровень для Hibernate
+      org.hibernate.SQL: WARN  # SQL запросы
+      org.hibernate.type.descriptor.sql: WARN  # Параметры SQL
+      org.hibernate.stat: WARN  # Статистика
+      org.springframework: INFO
+      io.grpc: DEBUG
+      io.netty: INFO
+      net.devh.boot.grpc: DEBUG
 
 
   jpa:
@@ -35,7 +43,6 @@ spring:
       hibernate:
         format_sql: true
         jdbc:
-          batch_size: 20
         order_inserts: true
         order_updates: true
     show-sql: true
