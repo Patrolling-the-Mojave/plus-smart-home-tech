@@ -28,6 +28,10 @@ public class KafkaSnapshotConsumerConfig {
         properties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, SnapshotAvroDeserializer.class);
         properties.put(ConsumerConfig.GROUP_ID_CONFIG, snapshotConsumerGroup);
         properties.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
+        properties.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, 100);
+        properties.put(ConsumerConfig.FETCH_MIN_BYTES_CONFIG, 1);
+        properties.put(ConsumerConfig.FETCH_MAX_WAIT_MS_CONFIG, 50);
+        properties.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest");
         return new KafkaConsumer<>(properties);
     }
 }

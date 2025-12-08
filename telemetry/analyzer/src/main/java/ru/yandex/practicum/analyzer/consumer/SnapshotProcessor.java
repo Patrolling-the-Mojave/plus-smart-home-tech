@@ -33,7 +33,7 @@ public class SnapshotProcessor implements Runnable {
     private final HubRouterService hubRouterService;
     private final SensorRepository sensorRepository;
     private final ConditionRepository conditionRepository;
-    private static final Duration POLL_DURATION = Duration.ofMillis(1000);
+    private static final Duration POLL_DURATION = Duration.ofMillis(5000);
 
     @Value("${spring.kafka.topics.telemetry.snapshots.v1}")
     private String snapshotTopic;
@@ -69,7 +69,6 @@ public class SnapshotProcessor implements Runnable {
         }
     }
 
-    @Transactional()
     private boolean isScenarioTriggered(Scenario scenario, Map<String, SensorStateAvro> states) {
         return scenario.getScenarioConditions().stream().allMatch(scenarioCondition -> {
             String sensorId = scenarioCondition.getSensor().getId();
