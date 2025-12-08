@@ -11,10 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.analyzer.exception.AnalyzerException;
 import ru.yandex.practicum.analyzer.grpcservice.HubRouterService;
-import ru.yandex.practicum.analyzer.model.Condition;
-import ru.yandex.practicum.analyzer.model.ConditionOperation;
-import ru.yandex.practicum.analyzer.model.ConditionType;
-import ru.yandex.practicum.analyzer.model.Scenario;
+import ru.yandex.practicum.analyzer.model.*;
 import ru.yandex.practicum.analyzer.repository.ConditionRepository;
 import ru.yandex.practicum.analyzer.repository.ScenarioRepository;
 import ru.yandex.practicum.analyzer.repository.SensorRepository;
@@ -32,7 +29,6 @@ public class SnapshotProcessor implements Runnable {
     private final ScenarioRepository scenarioRepository;
     private final HubRouterService hubRouterService;
     private final SensorRepository sensorRepository;
-    private final ConditionRepository conditionRepository;
     private static final Duration POLL_DURATION = Duration.ofMillis(5000);
 
     @Value("${spring.kafka.topics.telemetry.snapshots.v1}")
@@ -61,9 +57,12 @@ public class SnapshotProcessor implements Runnable {
     @Transactional
     private void processSnapshot(SensorsSnapshotAvro snapshot) {
         String hubId = snapshot.getHubId();
+        log.info("Получен снапшот для хаба: {}", hubId);
         List<Scenario> scenarios = scenarioRepository.findByHubId(hubId);
+        log.info("Найдено сценариев для хаба {}: {}", hubId, scenarios.size());
         for (Scenario scenario : scenarios) {
             if (isScenarioTriggered(scenario, snapshot.getSensorsState())) {
+                log.info("Сценарий '{}' активирован Отправляем команду в Hub Router", scenario.getName());
                 hubRouterService.sendDeviceActionRequest(scenario);
             }
         }
@@ -71,11 +70,14 @@ public class SnapshotProcessor implements Runnable {
 
     private boolean isScenarioTriggered(Scenario scenario, Map<String, SensorStateAvro> states) {
         return scenario.getScenarioConditions().stream().allMatch(scenarioCondition -> {
-            String sensorId = scenarioCondition.getSensor().getId();
-            sensorRepository.findByIdAndHubId(sensorId, scenario.getHubId()).orElseThrow(() ->
-                    new AnalyzerException("устройство с id " + sensorId + " не найдена"));
-            SensorStateAvro state = states.get(sensorId);
+            Sensor sensor = scenarioCondition.getSensor();
+            SensorStateAvro state = states.get(sensor.getId());
             if (state == null) {
+                return false;
+            }
+            if (!scenario.getHubId().equals(sensor.getHubId())) {
+                log.warn("Датчик {} принадлежит другому хабу ({} != {})",
+                        sensor.getId(), sensor.getHubId(), scenario.getHubId());
                 return false;
             }
             Condition condition = scenarioCondition.getCondition();

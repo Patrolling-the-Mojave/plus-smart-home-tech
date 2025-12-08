@@ -4,7 +4,6 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.analyzer.consumer.handler.mapper.ScenarioMapper;
 import ru.yandex.practicum.analyzer.exception.AnalyzerException;
 import ru.yandex.practicum.analyzer.model.*;
 import ru.yandex.practicum.analyzer.repository.ActionRepository;
@@ -22,7 +21,6 @@ import ru.yandex.practicum.kafka.telemetry.event.ScenarioConditionAvro;
 @RequiredArgsConstructor
 public class ScenarioAddedEventHandler implements HubEventHandler {
     private final ScenarioRepository scenarioRepository;
-    private final ScenarioMapper scenarioMapper;
     private final ConditionRepository conditionRepository;
     private final ActionRepository actionRepository;
     private final SensorRepository sensorRepository;
@@ -40,15 +38,7 @@ public class ScenarioAddedEventHandler implements HubEventHandler {
             String hubId = hubEventAvro.getHubId();
             String scenarioName = event.getName();
 
-            scenarioRepository.findByHubIdAndName(hubId, scenarioName)
-                    .ifPresent(existingScenario -> {
-                        existingScenario.getScenarioConditions().clear();
-                        existingScenario.getScenarioActions().clear();
-                        scenarioRepository.saveAndFlush(existingScenario);
-                        scenarioRepository.delete(existingScenario);
-                        scenarioRepository.flush();
-                        log.info("Удален существующий сценарий '{}' для хаба {}", scenarioName, hubId);
-                    });
+            scenarioRepository.deleteByHubIdAndName(hubId, scenarioName);
 
             Scenario scenario = new Scenario();
             scenario.setHubId(hubId);

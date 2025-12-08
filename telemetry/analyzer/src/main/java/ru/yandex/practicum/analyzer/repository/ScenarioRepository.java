@@ -28,4 +28,6 @@ public interface ScenarioRepository extends JpaRepository<Scenario, Long> {
             "LEFT JOIN s.scenarioActions sa " +
             "WHERE sc.sensor.id = :sensorId OR sa.sensor.id = :sensorId")
     List<Scenario> findBySensorId(@Param("sensorId") String sensorId);
+
+    void deleteByHubIdAndName(String hubId, String name);
 }

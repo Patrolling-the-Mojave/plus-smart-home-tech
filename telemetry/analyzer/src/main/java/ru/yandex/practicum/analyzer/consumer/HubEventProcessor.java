@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class HubEventProcessor implements Runnable {
     private final KafkaConsumer<String, HubEventAvro> hubEventKafkaConsumer;
-    private final Duration POLL_DURATION = Duration.ofMillis(1000);
+    private final Duration POLL_DURATION = Duration.ofMillis(5000);
     private final Map<HandlerType, HubEventHandler> handlers;
 
     @Value("${spring.kafka.topics.telemetry.hubs.v1}")
@@ -38,11 +38,13 @@ public class HubEventProcessor implements Runnable {
         try {
             hubEventKafkaConsumer.subscribe(List.of(hubEventsTopic));
             Runtime.getRuntime().addShutdownHook(new Thread(hubEventKafkaConsumer::wakeup));
-            ConsumerRecords<String, HubEventAvro> records = hubEventKafkaConsumer.poll(POLL_DURATION);
-            for (ConsumerRecord<String, HubEventAvro> record : records) {
-                processHubEvent(record.value());
+            while (true) {
+                ConsumerRecords<String, HubEventAvro> records = hubEventKafkaConsumer.poll(POLL_DURATION);
+                for (ConsumerRecord<String, HubEventAvro> record : records) {
+                    processHubEvent(record.value());
+                }
+                hubEventKafkaConsumer.commitSync();
             }
-            hubEventKafkaConsumer.commitSync();
         } catch (WakeupException exception) {
 
         } catch (Exception exception) {
@@ -60,7 +62,7 @@ public class HubEventProcessor implements Runnable {
         } else if (payload instanceof DeviceAddedEventAvro) {
             handlers.get(HandlerType.SENSOR_ADDED).handle(hubEventAvro);
         } else if (payload instanceof DeviceRemovedEventAvro) {
-            handlers.get(HandlerType.SCENARIO_REMOVED);
+            handlers.get(HandlerType.SENSOR_REMOVED);
         }
     }
 }
