@@ -7,8 +7,8 @@ import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.errors.WakeupException;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.analyzer.exception.AnalyzerException;
 import ru.yandex.practicum.analyzer.grpcservice.HubRouterService;
 import ru.yandex.practicum.analyzer.model.Condition;
@@ -58,6 +58,7 @@ public class SnapshotProcessor implements Runnable {
         }
     }
 
+    @Transactional
     private void processSnapshot(SensorsSnapshotAvro snapshot) {
         String hubId = snapshot.getHubId();
         List<Scenario> scenarios = scenarioRepository.findByHubId(hubId);
@@ -68,11 +69,12 @@ public class SnapshotProcessor implements Runnable {
         }
     }
 
+    @Transactional()
     private boolean isScenarioTriggered(Scenario scenario, Map<String, SensorStateAvro> states) {
         return scenario.getScenarioConditions().stream().allMatch(scenarioCondition -> {
             String sensorId = scenarioCondition.getSensor().getId();
             sensorRepository.findByIdAndHubId(sensorId, scenario.getHubId()).orElseThrow(() ->
-                    new AnalyzerException("устройство с id "+sensorId+" не найдена"));
+                    new AnalyzerException("устройство с id " + sensorId + " не найдена"));
             SensorStateAvro state = states.get(sensorId);
             if (state == null) {
                 return false;

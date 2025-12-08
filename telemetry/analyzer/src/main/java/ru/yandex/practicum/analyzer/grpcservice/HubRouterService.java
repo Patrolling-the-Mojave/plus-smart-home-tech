@@ -31,6 +31,7 @@ public class HubRouterService {
 
     private void sendDeviceAction(String hubId, DeviceActionProto deviceAction, String scenarioName) {
         try {
+            log.debug("запрос на исполнения сценария{}", scenarioName);
             DeviceActionRequest request = DeviceActionRequest.newBuilder()
                     .setAction(deviceAction)
                     .setHubId(hubId)
@@ -42,7 +43,7 @@ public class HubRouterService {
                     .build();
             hubRouterClient.handleDeviceAction(request);
 
-            log.info("Отправлено действие сценария '{}' для хаба {}}",
+            log.info("Отправлено действие сценария {} для хаба {}",
                     scenarioName, hubId);
         } catch (Exception exception) {
             log.error("Ошибка отправки команды в хаб {}: {}", hubId, exception.getMessage(), exception);
@@ -60,6 +61,4 @@ public class HubRouterService {
         }
          return builder.build();
     }
-
-
 }
