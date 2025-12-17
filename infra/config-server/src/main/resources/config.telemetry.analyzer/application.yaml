@@ -1,0 +1,51 @@
+grpc:
+  client:
+    hub-router:
+      address: "static://localhost:59090"
+      enableKeepAlive: true
+      keepAliveWithoutCalls: true
+      negotiationType: plaintext
+
+spring:
+  application:
+    name: analyzer-service
+  kafka:
+    consumer:
+      snapshot-group-id: snapshot-group
+      hub-event-group-id: hub-event-group
+      enable-auto-commit: false
+    bootstrap-servers: localhost:9092
+    topics:
+      telemetry:
+        hubs:
+          v1: telemetry.hubs.v1
+        snapshots:
+          v1: telemetry.snapshots.v1
+
+  logging:
+    level:
+      ru:
+        yandex:
+          practicum:
+            analyzer: INFO
+      io.grpc: DEBUG
+      io.netty: INFO
+      net.devh.boot.grpc: DEBUG
+
+
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        format_sql: true
+        jdbc:
+        order_inserts: true
+        order_updates: true
+    show-sql: true
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/scenario-db
+    username: username
+    password: password

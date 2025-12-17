@@ -1,4 +1,22 @@
 services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: scenario-db
+    hostname: postgres
+    environment:
+      POSTGRES_DB: scenario-db
+      POSTGRES_USER: username
+      POSTGRES_PASSWORD: password
+      POSTGRES_INITDB_ARGS: '--encoding=UTF-8 --lc-collate=C --lc-ctype=C'
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U username -d scenario-db" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
   kafka:
     image: confluentinc/confluent-local:7.4.3
     hostname: kafka
