@@ -7,8 +7,6 @@ grpc:
       negotiationType: plaintext
 
 spring:
-  application:
-    name: analyzer-service
   kafka:
     consumer:
       snapshot-group-id: snapshot-group
