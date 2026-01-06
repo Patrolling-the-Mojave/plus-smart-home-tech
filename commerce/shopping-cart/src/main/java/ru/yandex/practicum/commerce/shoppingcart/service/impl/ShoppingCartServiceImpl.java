@@ -4,13 +4,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.yandex.practicum.commerce.dto.cart.AddProductRequest;
 import ru.yandex.practicum.commerce.dto.cart.ChangeProductQuantityRequest;
 import ru.yandex.practicum.commerce.dto.cart.ShoppingCartDto;
 import ru.yandex.practicum.commerce.dto.warehouse.BookedProductsDto;
 import ru.yandex.practicum.commerce.interaction.client.WarehouseClient;
 import ru.yandex.practicum.commerce.shoppingcart.exception.CartDeactivatedException;
-import ru.yandex.practicum.commerce.shoppingcart.exception.CartNotAvailableException;
+import ru.yandex.practicum.commerce.shoppingcart.exception.NoProductsInShoppingCartException;
 import ru.yandex.practicum.commerce.shoppingcart.exception.NotFoundException;
 import ru.yandex.practicum.commerce.shoppingcart.model.CartProduct;
 import ru.yandex.practicum.commerce.shoppingcart.model.CartStatus;
@@ -46,31 +45,64 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 
     @Override
     @Transactional
-    public ShoppingCartDto addProductToCart(String username, AddProductRequest newProduct) {
-        ShoppingCart cart = getCartById(username);
-        checkCartStatus(cart);
+    public ShoppingCartDto addProductToCart(String username, Map<String, Integer> products) {
+        if (products.isEmpty()) {
+            throw new IllegalArgumentException("список товаров в корзине пуст");
+        }
+        ShoppingCart cart;
+        List<CartProduct> cartProducts;
+        if (shoppingCartRepository.existsById(username)) {
+            cart = getCartById(username);
+            checkCartStatus(cart);
+            cartProducts = addToExistingCart(username, products);
+        } else {
+            cart = ShoppingCart.builder()
+                    .id(username)
+                    .status(CartStatus.ACTIVE)
+                    .build();
+            cartProducts = createNewShoppingCart(cart, products);
+            shoppingCartRepository.save(cart);
+        }
+        ShoppingCartDto shoppingCart = toDto(cart, toDto(cartProducts));
+        BookedProductsDto bookedProduct = warehouseClient.checkShoppingCart(shoppingCart);
+        if (bookedProduct == null) {
+            throw new NoProductsInShoppingCartException("ошибка при проверке наличия товаров на складе");
+        }
+        cartProductRepository.saveAll(cartProducts);
+        return shoppingCart;
+    }
+
+    private List<CartProduct> createNewShoppingCart(ShoppingCart shoppingCart, Map<String, Integer> products) {
+        List<CartProduct> cartProducts = new ArrayList<>();
+        for (String productId : products.keySet()) {
+            CartProduct cartProduct = CartProduct.builder()
+                    .cartId(shoppingCart.getId())
+                    .productId(productId)
+                    .quantity(products.get(productId))
+                    .build();
+            cartProducts.add(cartProduct);
+        }
+        return cartProducts;
+    }
+
+    private List<CartProduct> addToExistingCart(String username, Map<String, Integer> products) {
         List<CartProduct> currentProducts = cartProductRepository.findAllByCartId(username);
         Map<String, CartProduct> productMap = currentProducts.stream().collect(Collectors.toMap(CartProduct::getProductId, Function.identity()));
-        CartProduct cartProduct;
-        if (productMap.containsKey(newProduct.getProductId())) {
-            cartProduct = productMap.get(newProduct.getProductId());
-            cartProduct.setQuantity(cartProduct.getQuantity() + newProduct.getQuantity());
-        } else {
-            cartProduct = CartProduct.builder()
-                    .productId(newProduct.getProductId())
-                    .quantity(newProduct.getQuantity())
-                    .cartId(username)
-                    .build();
-            productMap.put(cartProduct.getProductId(), cartProduct);
+        for (String productId : products.keySet()) {
+            CartProduct cartProduct;
+            if (productMap.containsKey(productId)) {
+                cartProduct = productMap.get(productId);
+                cartProduct.setQuantity(cartProduct.getQuantity() + products.get(productId));
+            } else {
+                cartProduct = CartProduct.builder()
+                        .productId(productId)
+                        .quantity(products.get(productId))
+                        .cartId(username)
+                        .build();
+                productMap.put(cartProduct.getProductId(), cartProduct);
+            }
         }
-        List<CartProduct> updatedProducts = new ArrayList<>(productMap.values());
-        ShoppingCartDto shoppingCart = toDto(cart, toDto(updatedProducts));
-        BookedProductsDto bookedProduct = warehouseClient.checkShoppingCart(shoppingCart);
-        if (bookedProduct == null){
-            throw new CartNotAvailableException("ошибка при проверке наличия товаров на складе");
-        }
-        cartProductRepository.save(cartProduct);
-        return shoppingCart;
+        return new ArrayList<>(productMap.values());
     }
 
     @Override
@@ -96,7 +128,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     public ShoppingCartDto setProductQuantity(String username, ChangeProductQuantityRequest quantityDto) {
         ShoppingCart cart = getCartById(username);
         checkCartStatus(cart);
-        if (quantityDto.getNewQuantity() < 0){
+        if (quantityDto.getNewQuantity() < 0) {
             throw new IllegalArgumentException("количество товара должно быть больше 0");
         }
         Optional<CartProduct> productOpt = cartProductRepository.findByCartIdAndProductId(username, quantityDto.getProductId());
@@ -115,8 +147,8 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
                 new NotFoundException("корзина покупок с id" + cartId + " не найдена"));
     }
 
-    private void checkCartStatus(ShoppingCart cart){
-        if (cart.getStatus().equals(CartStatus.DEACTIVATE)){
+    private void checkCartStatus(ShoppingCart cart) {
+        if (cart.getStatus().equals(CartStatus.DEACTIVATE)) {
             throw new CartDeactivatedException("корзина пользователя " + cart.getId() + " была деактивирована");
         }
     }

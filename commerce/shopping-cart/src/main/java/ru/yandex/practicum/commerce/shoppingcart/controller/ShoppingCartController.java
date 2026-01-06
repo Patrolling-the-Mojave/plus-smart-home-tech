@@ -11,6 +11,7 @@ import ru.yandex.practicum.commerce.interaction.client.ShoppingCartClient;
 import ru.yandex.practicum.commerce.shoppingcart.service.ShoppingCartService;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @Slf4j
@@ -28,8 +29,8 @@ public class ShoppingCartController implements ShoppingCartClient {
 
     @PutMapping
     @Override
-    public ShoppingCartDto addProductToCart(@RequestParam String username, @Validated @RequestBody AddProductRequest addRequestDto) {
-        return shoppingCartService.addProductToCart(username, addRequestDto);
+    public ShoppingCartDto addProductToCart(@RequestParam String username, @RequestBody Map<String, Integer> products) {
+        return shoppingCartService.addProductToCart(username, products);
     }
 
     @DeleteMapping

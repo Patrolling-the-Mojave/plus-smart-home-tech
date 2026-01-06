@@ -7,6 +7,7 @@ import ru.yandex.practicum.commerce.dto.cart.ChangeProductQuantityRequest;
 import ru.yandex.practicum.commerce.dto.cart.ShoppingCartDto;
 
 import java.util.List;
+import java.util.Map;
 
 @FeignClient(name = "shopping-cart")
 public interface ShoppingCartClient {
@@ -15,7 +16,7 @@ public interface ShoppingCartClient {
     ShoppingCartDto findShoppingCartById(@RequestParam String username);
 
     @PutMapping("/api/v1/shopping-cart")
-    ShoppingCartDto addProductToCart(@RequestParam String username, @RequestBody AddProductRequest addRequestDto);
+    ShoppingCartDto addProductToCart(@RequestParam String username, @RequestBody Map<String, Integer> products);
 
     @DeleteMapping("/api/v1/shopping-cart")
     void deactivateShoppingCart(@RequestParam String username);

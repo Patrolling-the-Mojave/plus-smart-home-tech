@@ -14,16 +14,18 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProductDto {
-    @NotNull
-    private String id;
+    private String productId;
     @NotNull
     private String productName;
     @NotNull
     private String description;
     @NotNull
     private String imageSrc;
+    @NotNull
     private QuantityState quantityState;
+    @NotNull
     private ProductState productState;
+    @NotNull
     private ProductCategory productCategory;
     @NotNull
     @DecimalMin("0.01")
