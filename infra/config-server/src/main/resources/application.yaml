@@ -10,7 +10,6 @@ spring:
           search-locations:
             - classpath:config/telemetry/{application}
             - classpath:config/commerce/{application}
-      fail-fast: true
       retry:
         initial-interval: 1000
         max-attempts: 10
