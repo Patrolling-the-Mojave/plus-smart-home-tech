@@ -18,7 +18,6 @@ import lombok.NoArgsConstructor;
 @Table(name = "product")
 public class Product {
     @Id
-    @Column(name = "product_id", nullable = false)
     private String productId;
     @Column(name = "quantity")
     private Integer quantity;

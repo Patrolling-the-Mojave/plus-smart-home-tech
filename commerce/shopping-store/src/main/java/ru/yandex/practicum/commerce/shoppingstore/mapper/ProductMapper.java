@@ -4,11 +4,12 @@ import ru.yandex.practicum.commerce.dto.product.ProductDto;
 import ru.yandex.practicum.commerce.shoppingstore.model.Product;
 
 import java.util.List;
+import java.util.UUID;
 
 public class ProductMapper {
     public static Product toEntity(ProductDto product) {
         return Product.builder()
-                .id(product.getId())
+                .id(UUID.randomUUID().toString())
                 .description(product.getDescription())
                 .productName(product.getProductName())
                 .price(product.getPrice())
@@ -21,7 +22,7 @@ public class ProductMapper {
 
     public static ProductDto toDto(Product product) {
         return ProductDto.builder()
-                .id(product.getId())
+                .productId(product.getId())
                 .description(product.getDescription())
                 .productName(product.getProductName())
                 .price(product.getPrice())
@@ -32,7 +33,7 @@ public class ProductMapper {
                 .build();
     }
 
-    private static List<ProductDto> toDto(List<Product> products) {
+    public static List<ProductDto> toDto(List<Product> products) {
         return products.stream().map(ProductMapper::toDto).toList();
     }
 }
