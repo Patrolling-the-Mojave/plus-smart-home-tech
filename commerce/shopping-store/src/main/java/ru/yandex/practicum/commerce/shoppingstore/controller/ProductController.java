@@ -46,7 +46,7 @@ public class ProductController {
 
     @PostMapping("/removeProductFromStore")
     public Boolean removeProduct(@RequestBody String productId) {
-        return productService.deleteProductById(productId);
+        return productService.deleteProductById(productId.replaceAll("^\"|\"$", ""));
     }
 
     @PostMapping("/quantityState")

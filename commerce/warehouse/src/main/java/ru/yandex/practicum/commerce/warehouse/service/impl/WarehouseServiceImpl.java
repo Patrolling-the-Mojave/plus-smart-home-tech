@@ -21,6 +21,7 @@ import java.security.SecureRandom;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -47,25 +48,25 @@ public class WarehouseServiceImpl implements WarehouseService {
 
     @Override
     public BookedProductsDto checkShoppingCart(ShoppingCartDto cart) {
-        List<String> productIds = cart.getProducts().stream().map(CartProductDto::getProductId).toList();
+        Set<String> productIds = cart.getProducts().keySet();
         List<Product> products = productRepository.findAllByProductIdIn(productIds);
         Map<String, Product> productById = products.stream().collect(Collectors.toMap(Product::getProductId, Function.identity()));
         Double volume = 0.0;
         Double weight = 0.0;
         Boolean fragile = false;
-        for (CartProductDto cartProduct : cart.getProducts()) {
-            Product product = productById.get(cartProduct.getProductId());
+        for (String productId: cart.getProducts().keySet()) {
+            Product product = productById.get(productId);
             if (product == null){
-                throw new NoSpecifiedProductInWarehouseException("товар с id "+ cartProduct.getProductId()+" не найден на складе");
+                throw new NoSpecifiedProductInWarehouseException("товар с id "+ productId+" не найден на складе");
             }
-            if (product.getQuantity() < cartProduct.getQuantity()) {
-                throw new NoSpecifiedProductInWarehouseException("нет нужно количества товара " + cartProduct.getProductId() + " на складе");
+            if (product.getQuantity() < cart.getProducts().get(productId)) {
+                throw new NoSpecifiedProductInWarehouseException("нет нужно количества товара " + productId + " на складе");
             }
             if (!fragile) {
                 fragile = product.getFragile();
             }
-            volume += product.getWidth() * product.getHeight() * product.getDepth() * cartProduct.getQuantity();
-            weight += product.getWeight() * cartProduct.getQuantity();
+            volume += product.getWidth() * product.getHeight() * product.getDepth() * cart.getProducts().get(productId);
+            weight += product.getWeight() * cart.getProducts().get(productId);
         }
         log.debug("финальные данные о заказе volume{}, weight{}, fragile{}", volume, weight, fragile);
         return createBookedProducts(fragile, weight, volume);

@@ -4,18 +4,13 @@ import ru.yandex.practicum.commerce.dto.cart.CartProductDto;
 import ru.yandex.practicum.commerce.shoppingcart.model.CartProduct;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class CartProductMapper {
 
-    public static CartProductDto toDto(CartProduct cartProduct) {
-        return CartProductDto.builder()
-                .productId(cartProduct.getProductId())
-                .quantity(cartProduct.getQuantity())
-                .build();
-    }
-
-    public static List<CartProductDto> toDto(List<CartProduct> products) {
-        return products.stream().map(CartProductMapper::toDto).toList();
+    public static Map<String, Integer> toDto(List<CartProduct> products) {
+        return products.stream().collect(Collectors.toMap(CartProduct::getProductId, CartProduct::getQuantity));
     }
 
 }

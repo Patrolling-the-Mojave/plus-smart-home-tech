@@ -5,9 +5,10 @@ import ru.yandex.practicum.commerce.dto.cart.ShoppingCartDto;
 import ru.yandex.practicum.commerce.shoppingcart.model.ShoppingCart;
 
 import java.util.List;
+import java.util.Map;
 
 public class CartMapper {
-    public static ShoppingCartDto toDto(ShoppingCart cart, List<CartProductDto> products){
+    public static ShoppingCartDto toDto(ShoppingCart cart, Map<String, Integer> products){
         return ShoppingCartDto.builder()
                 .products(products)
                 .shoppingCartId(cart.getId())

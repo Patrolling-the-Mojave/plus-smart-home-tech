@@ -15,5 +15,13 @@ spring:
     username: username
     password: password
 
+  logging:
+    level:
+      ru:
+        yandex:
+          practicum:
+            commerce:
+             shoppingstore: INFO
+
 server:
   port: 8084

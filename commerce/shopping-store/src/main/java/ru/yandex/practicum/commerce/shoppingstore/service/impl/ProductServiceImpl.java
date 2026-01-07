@@ -36,7 +36,6 @@ public class ProductServiceImpl implements ProductService {
         Product product = getProductById(id);
         log.debug("найден товар{}", product);
         return toDto(product);
-
     }
 
     @Override
@@ -70,7 +69,6 @@ public class ProductServiceImpl implements ProductService {
         productRepository.save(product);
         return Boolean.TRUE;
     }
-
 
     private Product getProductById(String id) {
         return productRepository.findById(id).orElseThrow(() ->
