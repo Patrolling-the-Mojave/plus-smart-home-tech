@@ -40,10 +40,10 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public List<ProductDto> findAllByCategory(ProductCategory productCategory) {
-        List<Product> products = productRepository.findAllByProductCategory(productCategory);
-        log.debug("найдено товаров {} для категории {}", products.size(), productCategory);
-        return toDto(products);
+    public Page<ProductDto> findAllByCategory(ProductCategory productCategory, Pageable pageable) {
+        Page<Product> products = productRepository.findAllByProductCategory(productCategory, pageable);
+        log.debug("найдено товаров {} для категории {}", products.getSize(), productCategory);
+        return products.map(ProductMapper::toDto);
     }
 
     @Override

@@ -16,5 +16,5 @@ public interface ProductRepository extends JpaRepository<Product, String> {
             WHERE p.productCategory = :product_category
             AND p.productState = 'ACTIVE'
             """)
-    List<Product> findAllByProductCategory(@Param("product_category") ProductCategory productCategory);
+    Page<Product> findAllByProductCategory(@Param("product_category") ProductCategory productCategory, Pageable pageable);
 }

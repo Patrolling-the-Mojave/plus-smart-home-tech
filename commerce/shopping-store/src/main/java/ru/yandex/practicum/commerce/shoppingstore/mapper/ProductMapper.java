@@ -8,8 +8,9 @@ import java.util.UUID;
 
 public class ProductMapper {
     public static Product toEntity(ProductDto product) {
+        String id = product.getProductId() != null ? product.getProductId() : UUID.randomUUID().toString();
         return Product.builder()
-                .id(UUID.randomUUID().toString())
+                .id(id)
                 .description(product.getDescription())
                 .productName(product.getProductName())
                 .price(product.getPrice())

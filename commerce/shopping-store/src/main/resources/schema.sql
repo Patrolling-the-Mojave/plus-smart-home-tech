@@ -6,8 +6,8 @@ CREATE TABLE IF NOT EXISTS product (
     quantity_state VARCHAR NOT NULL CHECK(quantity_state IN ('ENDED', 'FEW', 'ENOUGH', 'MANY')),
     product_category VARCHAR NOT NULL CHECK(product_category IN ('LIGHTING', 'CONTROL', 'SENSORS')),
     product_state VARCHAR NOT NULL CHECK (product_state IN ('ACTIVE', 'DEACTIVATE')),
-    price DOUBLE NOT NULL CHECK(price > 0)
+    price DECIMAL NOT NULL CHECK(price > 0)
 );
-CREATE INDEX idx_product_name ON product(name);
+CREATE INDEX idx_product_name ON product(product_name);
 CREATE INDEX idx_product_price ON product(price);
 

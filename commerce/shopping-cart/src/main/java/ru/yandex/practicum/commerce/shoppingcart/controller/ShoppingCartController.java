@@ -39,7 +39,7 @@ public class ShoppingCartController implements ShoppingCartClient {
         shoppingCartService.deactivateCart(username);
     }
 
-    @PostMapping
+    @PostMapping("/remove")
     @Override
     public ShoppingCartDto removeProductsFormCart(@RequestParam String username, @RequestBody List<String> productIds) {
         return shoppingCartService.removeProductsFromCart(username, productIds);

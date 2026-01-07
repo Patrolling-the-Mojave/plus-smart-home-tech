@@ -4,11 +4,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.commerce.dto.product.ProductCategory;
 import ru.yandex.practicum.commerce.dto.product.ProductDto;
-import ru.yandex.practicum.commerce.dto.product.ProductQuantityDto;
 import ru.yandex.practicum.commerce.dto.product.QuantityState;
 import ru.yandex.practicum.commerce.shoppingstore.service.ProductService;
 
@@ -22,8 +23,15 @@ public class ProductController {
     private final ProductService productService;
 
     @GetMapping
-    public List<ProductDto> findProductByCategory(@RequestParam ProductCategory category) {
-        return productService.findAllByCategory(category);
+    public Page<ProductDto> findProductByCategory(@RequestParam ProductCategory category,
+                                                  @PageableDefault(
+                                                          page = 0,
+                                                          size = 150,
+                                                          sort = "productName",
+                                                          direction = Sort.Direction.DESC
+                                                  ) Pageable pageable
+    ) {
+        return productService.findAllByCategory(category, pageable);
     }
 
     @PutMapping

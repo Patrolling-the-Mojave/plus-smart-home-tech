@@ -16,7 +16,7 @@ public interface ProductService {
 
     ProductDto findProductById(String id);
 
-    List<ProductDto> findAllByCategory(ProductCategory productCategory);
+    Page<ProductDto> findAllByCategory(ProductCategory productCategory, Pageable pageable);
 
     ProductDto updateProduct(ProductDto updatedProduct);
 
