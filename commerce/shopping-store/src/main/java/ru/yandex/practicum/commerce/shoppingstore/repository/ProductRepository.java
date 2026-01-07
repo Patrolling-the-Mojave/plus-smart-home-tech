@@ -11,10 +11,5 @@ import ru.yandex.practicum.commerce.shoppingstore.model.Product;
 import java.util.List;
 
 public interface ProductRepository extends JpaRepository<Product, String> {
-    @Query("""
-            SELECT p FROM Product p
-            WHERE p.productCategory = :product_category
-            AND p.productState = 'ACTIVE'
-            """)
     Page<Product> findAllByProductCategory(@Param("product_category") ProductCategory productCategory, Pageable pageable);
 }
