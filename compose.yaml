@@ -1,4 +1,58 @@
 services:
+  warehouse-db:
+    image: postgres:15-alpine
+    container_name: warehouse-db
+    hostname: warehouse
+    environment:
+      POSTGRES_DB: warehouse-db
+      POSTGRES_USER: username
+      POSTGRES_PASSWORD: password
+      POSTGRES_INITDB_ARGS: '--encoding=UTF-8 --lc-collate=C --lc-ctype=C'
+    ports:
+      - "5435:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U username -d scenario-db" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  shopping-cart-db:
+    image: postgres:15-alpine
+    container_name: shopping-cart-db
+    hostname: shopping-cart
+    environment:
+      POSTGRES_DB: shopping-cart-db
+      POSTGRES_USER: username
+      POSTGRES_PASSWORD: password
+      POSTGRES_INITDB_ARGS: '--encoding=UTF-8 --lc-collate=C --lc-ctype=C'
+    ports:
+      - "5434:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U username -d scenario-db" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  shopping-store-db:
+    image: postgres:15-alpine
+    container_name: shopping-store-db
+    hostname: shopping-store
+    environment:
+      POSTGRES_DB: shopping-store-db
+      POSTGRES_USER: username
+      POSTGRES_PASSWORD: password
+      POSTGRES_INITDB_ARGS: '--encoding=UTF-8 --lc-collate=C --lc-ctype=C'
+    ports:
+      - "5433:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U username -d scenario-db" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
   postgres:
     image: postgres:15-alpine
     container_name: scenario-db
@@ -22,8 +76,8 @@ services:
     hostname: kafka
     container_name: kafka
     ports:
-      - "9092:9092" # for client connections
-      - "9101:9101" # JMX
+      - "9092:9092"
+      - "9101:9101"
     restart: unless-stopped
     environment:
       KAFKA_NODE_ID: 1

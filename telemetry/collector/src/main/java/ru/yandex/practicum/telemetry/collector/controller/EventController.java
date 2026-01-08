@@ -11,7 +11,6 @@ import ru.yandex.practicum.grpc.telemetry.event.HubEventProto;
 import ru.yandex.practicum.grpc.telemetry.event.SensorEventProto;
 import ru.yandex.practicum.telemetry.collector.service.hub.HubEventHandler;
 import ru.yandex.practicum.telemetry.collector.service.sensor.SensorEventHandler;
-
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
