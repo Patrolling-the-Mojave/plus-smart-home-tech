@@ -7,15 +7,15 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.yandex.practicum.commerce.dto.error.ErrorResponse;
-import ru.yandex.practicum.commerce.shoppingstore.exception.NotFoundException;
+import ru.yandex.practicum.commerce.shoppingstore.exception.ProductNotFoundException;
 
 @RestControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(NotFoundException.class)
+    @ExceptionHandler(ProductNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ResponseEntity<ErrorResponse> handleNotFound(final NotFoundException exception){
+    public ResponseEntity<ErrorResponse> handleNotFound(final ProductNotFoundException exception){
         log.error("not found", exception);
         ErrorResponse errorResponse = new ErrorResponse("not found", exception.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);

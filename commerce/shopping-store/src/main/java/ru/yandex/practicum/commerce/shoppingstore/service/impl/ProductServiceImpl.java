@@ -7,13 +7,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.commerce.dto.product.*;
-import ru.yandex.practicum.commerce.shoppingstore.exception.NotFoundException;
+import ru.yandex.practicum.commerce.shoppingstore.exception.ProductNotFoundException;
 import ru.yandex.practicum.commerce.shoppingstore.mapper.ProductMapper;
 import ru.yandex.practicum.commerce.shoppingstore.model.Product;
 import ru.yandex.practicum.commerce.shoppingstore.repository.ProductRepository;
 import ru.yandex.practicum.commerce.shoppingstore.service.ProductService;
-
-import java.util.List;
 
 import static ru.yandex.practicum.commerce.shoppingstore.mapper.ProductMapper.toDto;
 import static ru.yandex.practicum.commerce.shoppingstore.mapper.ProductMapper.toEntity;
@@ -72,7 +70,7 @@ public class ProductServiceImpl implements ProductService {
 
     private Product getProductById(String id) {
         return productRepository.findById(id).orElseThrow(() ->
-                new NotFoundException("товар с id " + id + " не найден"));
+                new ProductNotFoundException("товар с id " + id + " не найден"));
     }
 
 }
