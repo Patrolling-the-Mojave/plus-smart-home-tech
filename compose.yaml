@@ -1,4 +1,58 @@
 services:
+  order-db:
+    image: postgres:15-alpine
+    container_name: order-db
+    hostname: order
+    environment:
+      POSTGRES_DB: order-db
+      POSTGRES_USER: username
+      POSTGRES_PASSWORD: password
+      POSTGRES_INITDB_ARGS: '--encoding=UTF-8 --lc-collate=C --lc-ctype=C'
+    ports:
+      - "5438:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U username -d scenario-db" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  payment-db:
+    image: postgres:15-alpine
+    container_name: payment-db
+    hostname: payment
+    environment:
+      POSTGRES_DB: payment-db
+      POSTGRES_USER: username
+      POSTGRES_PASSWORD: password
+      POSTGRES_INITDB_ARGS: '--encoding=UTF-8 --lc-collate=C --lc-ctype=C'
+    ports:
+      - "5437:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U username -d scenario-db" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  delivery-db:
+    image: postgres:15-alpine
+    container_name: delivery-db
+    hostname: delivery
+    environment:
+      POSTGRES_DB: delivery-db
+      POSTGRES_USER: username
+      POSTGRES_PASSWORD: password
+      POSTGRES_INITDB_ARGS: '--encoding=UTF-8 --lc-collate=C --lc-ctype=C'
+    ports:
+      - "5436:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U username -d scenario-db" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
   warehouse-db:
     image: postgres:15-alpine
     container_name: warehouse-db

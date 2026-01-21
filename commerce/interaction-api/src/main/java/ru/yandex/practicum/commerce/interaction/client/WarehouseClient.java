@@ -1,11 +1,10 @@
 package ru.yandex.practicum.commerce.interaction.client;
 
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.commerce.dto.cart.ShoppingCartDto;
+import ru.yandex.practicum.commerce.dto.order.OrderDto;
+import ru.yandex.practicum.commerce.dto.order.ProductReturnRequest;
 import ru.yandex.practicum.commerce.dto.warehouse.AddProductToWarehouseRequest;
 import ru.yandex.practicum.commerce.dto.warehouse.AddressDto;
 import ru.yandex.practicum.commerce.dto.warehouse.BookedProductsDto;
@@ -26,6 +25,15 @@ public interface WarehouseClient {
 
     @GetMapping("/api/v1/warehouse/address")
     AddressDto getWarehouseAddress();
+
+    @PostMapping("/api/v1/warehouse/collect")
+    BookedProductsDto collectOrderProducts(@RequestBody OrderDto orderDto);
+
+    @PostMapping("/api/v1/warehouse/delivery-link")
+    void addDeliveryToAssembledOrder(@RequestParam String orderId, @RequestParam String deliveryId);
+
+    @PostMapping("/api/v1/warehouse/return")
+    void returnProducts(@RequestBody ProductReturnRequest returnRequest);
 }
 
 

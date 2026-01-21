@@ -8,9 +8,6 @@ spring:
       discovery:
         enabled: true
         serviceId: config-server
-      circuitbreaker:
-        resilience4j:
-          enabled: true
 
 eureka:
   client:

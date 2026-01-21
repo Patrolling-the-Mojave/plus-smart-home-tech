@@ -24,4 +24,6 @@ public interface ProductService {
 
     Boolean setProductQuantity(String productId, QuantityState quantity);
 
+    List<ProductDto> findByProductIds(List<String> productIds);
+
 }
