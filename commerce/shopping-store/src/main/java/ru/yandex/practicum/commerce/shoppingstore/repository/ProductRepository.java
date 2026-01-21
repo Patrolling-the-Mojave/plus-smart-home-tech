@@ -12,4 +12,6 @@ import java.util.List;
 
 public interface ProductRepository extends JpaRepository<Product, String> {
     Page<Product> findAllByProductCategory(@Param("product_category") ProductCategory productCategory, Pageable pageable);
+
+    List<Product> findAllByIdIn(List<String> productIds);
 }

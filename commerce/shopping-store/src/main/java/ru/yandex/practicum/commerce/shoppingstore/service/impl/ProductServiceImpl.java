@@ -13,6 +13,8 @@ import ru.yandex.practicum.commerce.shoppingstore.model.Product;
 import ru.yandex.practicum.commerce.shoppingstore.repository.ProductRepository;
 import ru.yandex.practicum.commerce.shoppingstore.service.ProductService;
 
+import java.util.List;
+
 import static ru.yandex.practicum.commerce.shoppingstore.mapper.ProductMapper.toDto;
 import static ru.yandex.practicum.commerce.shoppingstore.mapper.ProductMapper.toEntity;
 
@@ -68,9 +70,15 @@ public class ProductServiceImpl implements ProductService {
         return Boolean.TRUE;
     }
 
+    @Override
+    public List<ProductDto> findByProductIds(List<String> productIds) {
+        return toDto(productRepository.findAllByIdIn(productIds));
+    }
+
     private Product getProductById(String id) {
         return productRepository.findById(id).orElseThrow(() ->
                 new ProductNotFoundException("товар с id " + id + " не найден"));
     }
+
 
 }
